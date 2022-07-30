@@ -1,0 +1,150 @@
+# Census2011
+select * 
+from Dataset1
+order by State;
+
+select * 
+from Dataset2
+order by State;
+
+--no of rows in the dataset
+select count(*)
+from Dataset1;
+
+select count(*)
+from Dataset2;
+
+-- Dataset for Bihar
+select * 
+from Dataset1 
+where State in('Bihar')
+order by District;
+
+-- Total Population of India
+select  SUM(Population)
+from Dataset2;
+
+--avg growth
+select avg(Growth)
+from Dataset1;
+
+-- total population Statewise
+select State, sum(Population)
+from Dataset2 
+group by State;
+
+--avg growth state wise(Aggregate Function)
+select State, avg(Growth) as AVG_Growth
+from Dataset1 
+group by State;
+
+--avg growth for Bihar state
+select State, avg(Growth) as AVG_Growth
+from Dataset1 
+where State in('Bihar')
+group by State;
+
+--Average Sex Ratio 
+select State, round(avg(Sex_Ratio),0) as AVG_sex_ratio
+from Dataset1
+group by State
+order by AVG_sex_ratio desc;
+
+--Average Literacy rate
+select State, round(avg(Literacy),0) as AVG_literacy
+from Dataset1 
+group by State
+order by AVG_literacy desc;
+
+--Average Literacy rate greater than 90
+select State, round(avg(Literacy),0) as AVG_literacy
+from Dataset1 
+group by State
+having AVG_literacy>90
+order by AVG_literacy desc;
+
+--Top 3 states showing higher average growth
+select State, avg(Growth) as AVG_growth
+from Dataset1
+group by state
+order by AVG_growth desc
+limit 3;
+
+--bottom 3 states acccording to growth rate
+select State, avg(Growth) as AVG_growth
+from Dataset1
+group by state
+order by AVG_growth
+limit 3;
+
+--Bottom 3 states showing lowest sex ratio
+select State, round(avg(Sex_Ratio),0) as AVG_sex_ratio
+from Dataset1
+group by State
+order by AVG_sex_ratio 
+limit 3;
+
+-- top 3 literacy rate
+select State, round(avg(Literacy),0) as AVG_Literacy
+from Dataset1 
+group by State 
+order by AVG_Literacy desc
+limit 3;
+
+-- bottom 3 literacy rate
+select State, round(avg(Literacy),0) as AVG_Literacy
+from Dataset1 
+group by State 
+order by AVG_Literacy 
+limit 3;
+
+-- States starting with letter A
+select distinct State
+from Dataset1
+where State like 'a%' 
+order by State;
+
+--States Ending with letter A
+select distinct State
+from Dataset1
+where State like '%a'
+order by State;
+
+-- States starting with letter A or B
+select distinct State
+from Dataset1
+where State like 'a%' or State like 'b%'
+order by State;
+
+--Joining both table
+select a.District, a.State, a.Sex_Ratio, b.Population
+from Dataset1 a  inner join Dataset2 b
+on a.District= b.District;
+
+--counting number of Males and Females District Level
+select c.District, c.State, 
+round(c.Population/(c.Sex_Ratio+1),0) as Males,
+round((c.Population*c.Sex_Ratio)/(c.Sex_Ratio+1),0) as Females
+from 
+(select a.District, a.State, a.Sex_Ratio/1000 as Sex_Ratio, b.Population
+from Dataset1 a  inner join Dataset2 b
+on a.District= b.District) c;
+
+--Counting number of Males and Females State Level
+Select d.State, sum(d.Males) as Tot_Males, sum(d.Females) as Tot_females
+from(select c.District, c.State, 
+	round(c.Population/(c.Sex_Ratio+1),0) as Males,
+	round((c.Population*c.Sex_Ratio)/(c.Sex_Ratio+1),0) as Females
+from(select a.District, a.State, a.Sex_Ratio/1000 as Sex_Ratio, b.Population
+	from Dataset1 a  inner join Dataset2 b
+	on a.District= b.District) c) d
+group by d.State;
+--window 
+
+output top 3 districts from each state with highest literacy rate
+
+
+select a.* from
+(select district,state,literacy,rank() over(partition by state order by literacy desc) rnk from project..data1) a
+
+where a.rnk in (1,2,3) order by state
