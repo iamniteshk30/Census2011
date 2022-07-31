@@ -140,7 +140,14 @@ from(select a.District, a.State, a.Sex_Ratio/1000 as Sex_Ratio, b.Population
 	on a.District= b.District) c) d
 group by d.State;
 
---window 
+--window Function 
+
+--top 3 Districts with highest Literacy Rate
+select a.* from
+(select District,State,Literacy,rank() over(order by Literacy desc ) as rnk from Dataset1) a
+where a.rnk in (1,2,3) 
+order by State;
+
 --output top 3 districts from each state with highest literacy rate
 select a.* from
 (select District,State,Literacy,rank() over(partition by State order by Literacy desc) rnk from Dataset1) a
