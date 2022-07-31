@@ -139,12 +139,9 @@ from(select a.District, a.State, a.Sex_Ratio/1000 as Sex_Ratio, b.Population
 	from Dataset1 a  inner join Dataset2 b
 	on a.District= b.District) c) d
 group by d.State;
+
 --window 
-
-output top 3 districts from each state with highest literacy rate
-
-
+--output top 3 districts from each state with highest literacy rate
 select a.* from
-(select district,state,literacy,rank() over(partition by state order by literacy desc) rnk from project..data1) a
-
+(select District,State,Literacy,rank() over(partition by State order by Literacy desc) rnk from Dataset1) a
 where a.rnk in (1,2,3) order by state
